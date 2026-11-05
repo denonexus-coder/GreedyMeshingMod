@@ -67,6 +67,39 @@ public final class GreedyMesher {
         return binaryKeyedSweep(blocks, faceMasks, mergeKeys);
     }
 
+    // ── Ultra sweep (zero-alloc QuadBuffer output) ───────────────────
+
+    public static void meshUltra(
+            BlockState[] blocks,
+            BitSet[] faceMasks,
+            long[][] mergeKeys,
+            UltraGreedyMesher.QuadBuffer out) {
+        UltraGreedyMesher.meshUltra(blocks, faceMasks, mergeKeys, out);
+    }
+
+    public static List<GreedyQuad> meshUltraList(
+            BlockState[] blocks,
+            BitSet[] faceMasks,
+            long[][] mergeKeys) {
+
+        UltraGreedyMesher.QuadBuffer buf = UltraGreedyMesher.acquireQuadBuffer();
+        meshUltra(blocks, faceMasks, mergeKeys, buf);
+        List<GreedyQuad> out = new ArrayList<>(buf.size);
+        UltraGreedyMesher.toQuadList(buf, blocks, out);
+        return out;
+    }
+
+    public static void meshUltraMT(
+            BlockState[][] blocksSections,
+            BitSet[][] faceMasksSections,
+            long[][][] mergeKeysSections,
+            UltraGreedyMesher.QuadBuffer[] outBuffers,
+            int sectionCount) {
+
+        UltraGreedyMesher.meshUltraMT(
+                blocksSections, faceMasksSections, mergeKeysSections, outBuffers, sectionCount);
+    }
+
     // ── Scalar sweep (callback-based visibility) ─────────────────────
 
     private static List<GreedyQuad> sweep(
